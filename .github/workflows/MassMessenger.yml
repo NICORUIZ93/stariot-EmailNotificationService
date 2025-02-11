@@ -1,27 +1,19 @@
-name: Build and Deploy Spring Boot App
-
+name: Build and Test
 on:
   push:
-    branches:
-      - main # Cambiar según sea necesario
-
+    branches: [ main ]
 jobs:
-  build-and-deploy:
+  build-and-test:
     runs-on: ubuntu-latest
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
         
-      - name: Set up JDK 21 for Gradle project
+      - name: Setup Java environment
         uses: actions/setup-java@v3
-        with:
-          java-version: '21'
-          distribution: 'temurin' # Otra distribución compatible
         
-      - name: Give execution permissions to gradlew
-        run: chmod +x ./gradlew
+      - name: Build with Gradle # Compila con Gradle.
+        run: ./gradlew build --stacktrace --info
         
-      - name: Build with Gradle wrapper validated by checksum verification if needed or simply run the wrapper directly if trusted source!
-        run: ./gradlew clean bootJar --no-daemon --stacktrace --info --parallel
-        
+      - name: Run tests with Gradle # Ejecuta pruebas unitarias con Gradle.
+        run: ./gradlew test --stacktrace --info 
