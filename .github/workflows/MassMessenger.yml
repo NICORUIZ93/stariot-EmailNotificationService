@@ -1,4 +1,4 @@
-# Build and Test Spring Boot with Gradle
+name: Build and Test Spring Boot with Gradle
 
 on:
   push:
@@ -8,43 +8,39 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+
     steps:
-      # Paso 1: Descargar el código
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Paso 2: Configurar Java
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
-          java-version:'21'
-          distribution:'temurin'
+          java-version: '21'
+          distribution: 'temurin'
 
-      # Paso 3: Instalar Docker y Compose si es necesario.
-      - name: Install Docker and Compose if needed.
+      - name: Install Docker and Docker Compose
         run: |
-          sudo apt-get update && sudo apt-get install -y ca-certificates curl gnupg lsb-release
+          sudo apt-get update
+          sudo apt-get install -y ca-certificates curl gnupg lsb-release
           curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
           echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-          sudo apt-get update && sudo apt-get install -y docker-ce docker-compose-plugin
+          sudo apt-get update
+          sudo apt-get install -y docker-ce docker-compose-plugin
 
-      # Paso 4: Establecer permisos para Gradle si es necesario.
-      - name: Setup Gradle permissions if needed.
-        run:
-          sudo chmod +x ./gradlew || echo "Gradle wrapper already executable."
+      - name: Make Gradlew executable
+        run: sudo chmod +x ./gradlew || echo "Gradlew is already executable."
 
-      # Paso 5 (opcional): Iniciar servicios con Docker Compose si se requiere.
-      - name: Start services with compose (if needed).
+      - name: Start Docker services with Docker Compose
         run: |
-          systemctl start docker || true  
-          DOCKER_BUILDKIT=1 COMPOSE_HTTP_TIMEOUT=200 docker-compose up --build &> /dev/null &
+          sudo systemctl start docker || true
+          DOCKER_BUILDKIT=1 COMPOSE_HTTP_TIMEOUT=200 docker compose up --build > /dev/null 2>&1 &
 
-      # Paso final (crítico): Ejecutar pruebas o tareas con Gradle (env).
-      - name: Ejecutar pruebas o tareas con Gradle (env)
+      - name: Run Gradle build and tests
         env:
-          GRADLE_USER_HOME:/home/runner/.gradle/
+          GRADLE_USER_HOME: /home/runner/.gradle/
         run: |
-          ./gradlew build test --stacktrace --info --parallel-max-workers=4 || {
-            echo "Fallo al ejecutar pruebas o construir."
-            exit 1;
-            }
+          ./gradlew build test --stacktrace --info --parallel --max-workers=4 || {
+            echo "Failed to build or run tests."
+            exit 1
+          }
