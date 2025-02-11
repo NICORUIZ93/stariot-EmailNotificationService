@@ -18,8 +18,8 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
+      - name: Setup Gradle permissions
+        run: chmod +x ./gradlew
 
       - name: Build and Test with Gradle
         run: ./gradlew build test --stacktrace --info --parallel --max-workers=4
