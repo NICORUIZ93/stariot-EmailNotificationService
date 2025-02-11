@@ -1,7 +1,5 @@
-# Nombre del flujo de trabajo
 name: Build and Test Spring Boot with Gradle
 
-# Evento que activa el flujo de trabajo
 on:
   push:
     branches:
@@ -9,22 +7,18 @@ on:
 
 jobs:
   build-and-test:
-    # Entorno donde se ejecuta el job
     runs-on: ubuntu-latest
-    
     steps:
-      # Paso para obtener el código desde GitHub
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Configura Java en el entorno (versión y distribución)
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
 
-      # Instala Docker Compose si no está disponible.
+      # Instala docker-compose si es necesario.
       - name: Install Docker Compose if needed.
         run: |
           sudo apt-get update && sudo apt-get install docker.io docker-compose -y
