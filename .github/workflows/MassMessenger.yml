@@ -18,9 +18,42 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
+      # Instala docker-compose (si no está disponible por defecto)
+      - name: Install docker-compose
+        run: |
+          sudo apt-get update && sudo apt-get install docker.io docker-compose -y
+
+      # Configura permisos para gradlew si es necesario (como antes)
       - name: Setup Gradle permissions
         run: chmod +x ./gradlew
 
-      - name: Build and Test with Gradle
-        run: ./gradlew build test --stacktrace --info --parallel --max-workers=4
+      # Inicia servicios con docker-compose si los necesitas durante las pruebas o compilación.
+      # Asegúrate que tienes un archivo `docker-compose.yml` configurado correctamente.
+      - name: Start services with docker-compose (if needed)
+        run: |
+          echo "Starting services..."
+          sudo service docker start || true # Inicia servicio si no está iniciado ya.
+          sudo usermod -aG docker $USER || true # Agrega usuario al grupo 'docker' si es necesario.
+          newgrp docker << EOF || true 
+            echo "Running compose..."
+            cd .
+            if [ ! "$(docker ps | grep my-service)" ]; then 
+              echo "Service not running."
+              if [ ! "$(docker ps --all | grep my-service)" ]; then 
+                echo "Service not found."
+                if [ ! "$(sudo ls /var/lib/docker/containers)" ]; then 
+                  echo "No containers found."
+                fi  
+              fi  
+            fi  
+            sudo COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 COMPOSE_HTTP_TIMEOUT=200 COMPOSE_API_VERSION=auto DOCKER_HOST=tcp://localhost:/var/run/docker.sock DOCKER_TLS_VERIFY="0" DOCKER_CONTENT_TRUST="0" COMPOSE_PROJECT_NAME=my-project-name bash ./start-docker.sh || { exit_code=$?; }
+            exit $exit_code;
+EOF 
 
+# Ejecuta tus pruebas o tareas con Gradle como antes.
+- name: Build and Test with Gradle
+  env:
+    GRADLE_USER_HOME : ~/.gradle/
+  run : |
+    ./gradlew build test --stacktrace --info --parallel --max-workers=4
+    
