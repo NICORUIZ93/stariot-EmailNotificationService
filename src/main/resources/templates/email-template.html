@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Correo Personalizado</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #dddddd;
+        }
+
+        .header h1 {
+            color: #333333;
+            font-size: 24px;
+        }
+
+        .content {
+            padding: 20px 0;
+        }
+
+        .content p {
+            color: #555555;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .footer {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #dddddd;
+            font-size: 14px;
+            color: #777777;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 20px 0;
+            background-color: #007bff;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<div class="email-container">
+    <div class="header">
+        <h1 th:text="'¡Hola, ' + ${name} + '!'">¡Hola, [Nombre]!</h1>
+    </div>
+    <div class="content">
+        <p>Gracias por registrarte en nuestro servicio. Estamos encantados de tenerte con nosotros.</p>
+        <p>Aquí tienes algunos detalles importantes:</p>
+        <ul>
+            <li><strong>Nombre:</strong> <span th:text="${name}">[Nombre]</span></li>
+            <li><strong>Correo electrónico:</strong> <span th:text="${toAddress}">[Correo electrónico]</span></li>
+            <li th:if="${additionalData != null}"><strong>Información adicional:</strong> <span
+                    th:text="${additionalData}">[Información adicional]</span></li>
+        </ul>
+        <p>Si tienes alguna pregunta o necesitas ayuda, no dudes en contactarnos.</p>
+        <a th:href="@{https://www.tudominio.com/contacto}" class="button">Contactar Soporte</a>
+    </div>
+    <div class="footer">
+        <p>Este es un correo automático, por favor no respondas directamente a este mensaje.</p>
+        <p>&copy; 2023 Tu Empresa. Todos los derechos reservados.</p>
+    </div>
+</div>
+</body>
+</html>

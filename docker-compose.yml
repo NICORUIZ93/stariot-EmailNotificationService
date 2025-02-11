@@ -1,0 +1,15 @@
+version: '3'
+services:
+  mass-messenger-app:
+    build:
+      context: ./ # Ajusta según sea necesario si no está en la raíz.
+      dockerfile: Dockerfile # Ajusta según sea necesario.
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+
+      # Variables específicas de tu aplicación.
+      - MAILERSEND_API_KEY=mlsn.00e5d25b70f76cc75ba7c876b41b3394ba2b9874e4c65bb23301b1ca9385300d
+      - FROM_EMAIL_ADDRESS=nicolas@trial-k68zxl2kxemlj905.mlsender.net
+      - FROM_EMAIL_NAME=Nicolás Ruíz
