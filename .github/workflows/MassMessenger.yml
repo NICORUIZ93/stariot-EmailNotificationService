@@ -19,7 +19,9 @@ jobs:
           java-version: '21'
           distribution: 'temurin' # Otra distribución compatible
         
+      - name: Give execution permissions to gradlew
+        run: chmod +x ./gradlew
+        
       - name: Build with Gradle wrapper validated by checksum verification if needed or simply run the wrapper directly if trusted source!
         run: ./gradlew clean bootJar --no-daemon --stacktrace --info --parallel
         
-      # Opcionalmente despliegue usando Docker...
