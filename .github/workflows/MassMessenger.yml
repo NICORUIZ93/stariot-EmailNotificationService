@@ -1,5 +1,7 @@
+# Nombre del flujo de trabajo
 name: Build and Test Spring Boot with Gradle
 
+# Evento que activa el flujo de trabajo
 on:
   push:
     branches:
@@ -7,53 +9,46 @@ on:
 
 jobs:
   build-and-test:
+    # Entorno donde se ejecuta el job
     runs-on: ubuntu-latest
+    
     steps:
+      # Paso para obtener el código desde GitHub
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Configura Java en el entorno (versión y distribución)
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
 
-      # Instala docker-compose (si no está disponible por defecto)
-      - name: Install docker-compose
+      # Instala Docker Compose si no está disponible.
+      - name: Install Docker Compose if needed.
         run: |
           sudo apt-get update && sudo apt-get install docker.io docker-compose -y
 
-      # Configura permisos para gradlew si es necesario (como antes)
-      - name: Setup Gradle permissions
-        run: chmod +x ./gradlew
+      # Configura permisos para gradlew si es necesario.
+      - name: Setup Gradle permissions if needed.
+        run : 
+          chmod +x ./gradlew || echo "Gradle wrapper already executable."
 
-      # Inicia servicios con docker-compose si los necesitas durante las pruebas o compilación.
-      # Asegúrate que tienes un archivo `docker-compose.yml` configurado correctamente.
-      - name: Start services with docker-compose (if needed)
-        run: |
+      # Inicia servicios con Docker Compose (si los necesitas).
+      - name : Start services with compose-up (if needed)
+        run : |
           echo "Starting services..."
-          sudo service docker start || true # Inicia servicio si no está iniciado ya.
-          sudo usermod -aG docker $USER || true # Agrega usuario al grupo 'docker' si es necesario.
-          newgrp docker << EOF || true 
-            echo "Running compose..."
-            cd .
-            if [ ! "$(docker ps | grep my-service)" ]; then 
-              echo "Service not running."
-              if [ ! "$(docker ps --all | grep my-service)" ]; then 
-                echo "Service not found."
-                if [ ! "$(sudo ls /var/lib/docker/containers)" ]; then 
-                  echo "No containers found."
-                fi  
-              fi  
-            fi  
-            sudo COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 COMPOSE_HTTP_TIMEOUT=200 COMPOSE_API_VERSION=auto DOCKER_HOST=tcp://localhost:/var/run/docker.sock DOCKER_TLS_VERIFY="0" DOCKER_CONTENT_TRUST="0" COMPOSE_PROJECT_NAME=my-project-name bash ./start-docker.sh || { exit_code=$?; }
-            exit $exit_code;
-EOF 
+          sudo service docker start || true 
+          cd .
+          sudo COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 COMPOSE_HTTP_TIMEOUT=200 docker-compose up --build &> /dev/null & 
 
-# Ejecuta tus pruebas o tareas con Gradle como antes.
-- name: Build and Test with Gradle
-  env:
-    GRADLE_USER_HOME : ~/.gradle/
-  run : |
-    ./gradlew build test --stacktrace --info --parallel --max-workers=4
-    
+# Ejecuta tus pruebas o tareas con Gradle.
+    - name : Build and Test with Gradle 
+      env :
+        GRADLE_USER_HOME : ~/.gradle/
+        
+      run : |
+        ./gradlew build test --stacktrace --info --parallel --max-workers=4 || {
+            echo "Error al ejecutar las pruebas o construir."
+            exit 1;
+        }
