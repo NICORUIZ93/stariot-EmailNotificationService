@@ -150,7 +150,7 @@ Este proyecto está bajo la licencia **MIT**. Consulta el archivo [LICENSE](LICE
 
 ## Autor ✒️
 
-- **Tu Nombre** - [@tu-usuario](https://github.com/tu-usuario)
+- **Nicolás Ruiz** - [@NICORUIZ93](https://github.com/NICORUIZ93)
 
 ---
 
