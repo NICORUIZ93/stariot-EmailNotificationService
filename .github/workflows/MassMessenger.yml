@@ -25,7 +25,7 @@ jobs:
 
       # Configura permisos para gradlew si es necesario.
       - name: Setup Gradle permissions if needed.
-        run : 
+        run :
           chmod +x ./gradlew || echo "Gradle wrapper already executable."
 
       # Inicia servicios con Docker Compose (si los necesitas).
@@ -36,13 +36,13 @@ jobs:
           cd .
           sudo COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 COMPOSE_HTTP_TIMEOUT=200 docker-compose up --build &> /dev/null & 
 
-# Ejecuta tus pruebas o tareas con Gradle.
-    - name : Build and Test with Gradle 
-      env :
-        GRADLE_USER_HOME : ~/.gradle/
+      # Ejecuta tus pruebas o tareas con Gradle.
+      - name : Build and Test with Gradle
+        env :
+          GRADLE_USER_HOME : ~/.gradle/
         
-      run : |
-        ./gradlew build test --stacktrace --info --parallel --max-workers=4 || {
-            echo "Error al ejecutar las pruebas o construir."
-            exit 1;
-        }
+        run : |
+          ./gradlew build test --stacktrace --info --parallel --max-workers=4 || {
+              echo "Error al ejecutar las pruebas o construir."
+              exit 1;
+          }
